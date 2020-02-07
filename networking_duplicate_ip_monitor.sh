@@ -1,9 +1,11 @@
 #!/bin/bash
 NETIFACE=eth0
+NETWORKADDR=$(ip -4 addr | grep $NETIFACE | grep inet | awk '{print $2}')
 MAILFROM=mail@exemple.com
 MAILTO=mail@exemple.com
-MAILSUBJECT="DUPLICATE IPs Found"
+MAILSUBJECT="[WARNING] DUPLICATE IPs Found"
 DUPLICATEIPFILE="/tmp/arp-scan_$NETIFACE.txt"
+DUPLICATEIP=0
 
 if [ -f $DUPLICATEIPFILE ]
 then
@@ -18,6 +20,7 @@ then
         exit 1
 fi
 
+
 arp_scan_output_html()
 {
 for i in $(cat $DUPLICATEIPFILE | grep "DUP" | awk '{print $1}')
@@ -25,13 +28,14 @@ do
         if [ ! $(cat $DUPLICATEIPFILE | grep "$i" | awk '{print $2}' | uniq | wc -l) -lt 2 ]
         then
                 echo "<p><b>Duplicate IPs found for $i :</b>"
-                echo "<pre>$(cat /tmp/arp-scan_$NETIFACE.txt | grep $i)</pre>"
+                echo "<pre>$(cat $DUPLICATEIPFILE | grep $i)</pre>"
                 echo "</p>"
+                DUPLICATEIP=1
         fi
 done
 }
 
-if [ ! -s $DUPLICATEIPFILE ]
+if [ $DUPLICATEIP -eq 0 ]
 then
         echo "No duplicate IPs found"
         exit 0
