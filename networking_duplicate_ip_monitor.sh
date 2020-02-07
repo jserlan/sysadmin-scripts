@@ -22,9 +22,12 @@ arp_scan_output_html()
 {
 for i in $(cat $DUPLICATEIPFILE | grep "DUP" | awk '{print $1}')
 do
-        echo "<p><b>Duplicate IPs found for $i :</b>"
-        echo "<pre>$(cat /tmp/arp-scan_$NETIFACE.txt | grep $i)</pre>"
-        echo "</p>"
+        if [ ! $(cat $DUPLICATEIPFILE | grep "$i" | awk '{print $2}' | uniq | wc -l) -lt 2 ]
+        then
+                echo "<p><b>Duplicate IPs found for $i :</b>"
+                echo "<pre>$(cat /tmp/arp-scan_$NETIFACE.txt | grep $i)</pre>"
+                echo "</p>"
+        fi
 done
 }
 
