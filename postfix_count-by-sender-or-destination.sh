@@ -3,6 +3,9 @@ logfile=/var/log/mail.log
 type=$1
 
 case $type in
+	"")
+	type="from"
+	;;
 	"from"|"to")
 	;;
 	*)
